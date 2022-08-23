@@ -1,0 +1,17 @@
+{
+    "model_name": "yolov5s_poker",
+    "model_device": "kDLCPU",
+    "model_so": "/home/wgzhong/runmodel-sdk/test/yolov5s/relay_yolov5s.so",
+    "model_true_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
+    "model_classes_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
+    "model_datasets": "/home/wgzhong/datasets/poker_new/train/images/",
+    "model_dtype": "kDLFloat",
+    "model_input_node": "images",
+    "model_bits": 32,
+    "model_input_width": 128,
+    "model_inputt_height": 128,
+    "model_input_depth": 3,
+    "model_output_classes_num": 54,
+    "model_output_shape": 1008,
+    "model_camera_id": 0
+}

@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "test_yolov5s.h"
-#include "uart.h"
+#include "test/yolov5s/test_yolov5s.h"
+#include "protocol/uart.h"
 namespace Ui {
 class MainWindow;
 }
@@ -19,7 +19,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    entrance *yolov5s;
+    entrance *yolov5s_entrance;
     uart *ser;
 };
 
