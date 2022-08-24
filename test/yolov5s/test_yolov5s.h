@@ -63,6 +63,7 @@ public:
     std::vector<ground_truth> get_output(){
         float *output = m_runmodel->get_output();
         m_model->postprocess(output, m_classes_num, m_output_shape);
+        m_output.clear();
         m_model->get_output(m_output);
         return m_output;
     }

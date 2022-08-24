@@ -16,6 +16,7 @@ void yolov5s::process_input(cv::Mat input_image, float *out_data, int w, int h) 
 
 void yolov5s::postprocess(float *result, float class_num, float output_shape, 
         float CONF_THRES, float IOU_THRES, float MAX_NUM){
+    m_output.clear();
     non_max_suppression(result, m_output, CONF_THRES, IOU_THRES, MAX_NUM, class_num, output_shape);
 }
 
