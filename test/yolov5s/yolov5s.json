@@ -1,7 +1,13 @@
 {
     "model_name": "yolov5s_poker",
     "model_device": "kDLCPU",
-    "model_so": "/home/wgzhong/runmodel-sdk/test/yolov5s/relay_yolov5s.so",
+
+    "model_type": 1,
+    "model_single_so": "/home/wgzhong/runmodel-sdk/test/yolov5s/relay_yolov5s.so",
+    "model_json": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.json",
+    "model_lib": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.so",
+    "model_params": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.params",
+
     "model_true_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
     "model_classes_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
     "model_datasets": "/home/wgzhong/datasets/poker_new/train/images/",

@@ -11,6 +11,8 @@
  public:
      runmodel(std::string jsonFile);
      void init(tvm::runtime::ShapeTuple input_shape, tvm::runtime::ShapeTuple output_shape);
+     void init_tvm(DLDevice dev);
+     void init_tvm(int device_type = kDLCPU, int device_id = 0);
      void set_input(float *data, int size);
      void run(std::string input_node);
      float* get_output();
@@ -18,8 +20,6 @@
 
  private:
      json m_json_file;
-     tvm::runtime::Module m_load_lib;
-     tvm::runtime::Module m_mod;
      tvm::runtime::PackedFunc m_set_input;
      tvm::runtime::PackedFunc m_get_output;
      tvm::runtime::PackedFunc m_run;

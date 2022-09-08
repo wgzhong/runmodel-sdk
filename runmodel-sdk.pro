@@ -33,7 +33,7 @@ SOURCES += \
 HEADERS += \
         mainwindow.h \
     camera/camera.h \
-    debug/debug.h \
+    macro_debug/debug.h \
     protocol/uart.h \
     sdk/runmodel.h \
     test/yolov5s/test_yolov5s.h \

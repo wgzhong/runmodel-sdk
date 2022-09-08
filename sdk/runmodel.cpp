@@ -1,7 +1,9 @@
  #include "runmodel.h"
  #include<iostream> 
  #include<fstream>
-
+ #include <tvm/runtime/module.h>
+ #include <tvm/runtime/registry.h>
+ #include <tvm/runtime/packed_func.h>
  runmodel::runmodel(std::string jsonFile) {
     std::ifstream jfile(jsonFile);
     if (!jfile.is_open()) {
@@ -12,25 +14,25 @@
 
  void runmodel::init(tvm::runtime::ShapeTuple input_shape,
                      tvm::runtime::ShapeTuple output_shape){
-     DLDevice m_dev = {kDLCPU, 0};
+     DLDevice dev = {kDLCPU, 0};
      if(m_json_file.at("model_device") == "kDLCPU"){
-        m_dev = {kDLCPU, 0};
+        dev = {kDLCPU, 0};
      } else if(m_json_file.at("model_device") == "kDLCUDA"){
-        m_dev = {kDLCUDA, 0};
+        dev = {kDLCUDA, 0};
      } else if(m_json_file.at("model_device") == "kDLCUDAHost"){
-        m_dev = {kDLCUDAHost, 0};
+        dev = {kDLCUDAHost, 0};
      } else if(m_json_file.at("model_device") == "kDLOpenCL"){
-        m_dev = {kDLOpenCL, 0};
+        dev = {kDLOpenCL, 0};
      } else if(m_json_file.at("model_device") == "kDLVulkan"){
-        m_dev = {kDLVulkan, 0};
+        dev = {kDLVulkan, 0};
      } else if(m_json_file.at("model_device") == "kDLMetal"){
-        m_dev = {kDLMetal, 0};
+        dev = {kDLMetal, 0};
      } else if(m_json_file.at("model_device") == "kDLVPI"){
-        m_dev = {kDLVPI, 0};
+        dev = {kDLVPI, 0};
      } else if(m_json_file.at("model_device") == "kDLROCM"){
-        m_dev = {kDLROCM, 0};
+        dev = {kDLROCM, 0};
      } else if(m_json_file.at("model_device") == "kDLExtDev"){
-        m_dev = {kDLExtDev, 0};
+        dev = {kDLExtDev, 0};
      } else{
         LOG(ERROR)<<"not support this devide:"<<m_json_file.at("model_device");
      }  
@@ -51,15 +53,57 @@
         LOG(ERROR)<<"not support this type:"<<m_json_file.at("model_dtype");
      }   
      uint8_t bits = m_json_file.at("model_bits");
-     m_input = tvm::runtime::NDArray::Empty(input_shape, DLDataType{dtype, bits, 1}, m_dev);
-     m_output = tvm::runtime::NDArray::Empty(output_shape, DLDataType{dtype, bits, 1}, m_dev);
-     m_load_lib = tvm::runtime::Module::LoadFromFile(m_json_file.at("model_so"));
-     m_mod = m_load_lib.GetFunction("default")(m_dev);
-     m_set_input = m_mod.GetFunction("set_input");
-     m_get_output = m_mod.GetFunction("get_output");
-     m_run = m_mod.GetFunction("run");
+     m_input = tvm::runtime::NDArray::Empty(input_shape, DLDataType{dtype, bits, 1}, dev);
+     m_output = tvm::runtime::NDArray::Empty(output_shape, DLDataType{dtype, bits, 1}, dev);
+     int mode_type = 0;
+     mode_type = m_json_file.at("model_type");
+     if(mode_type == 1){
+      init_tvm(kDLCPU, 0);
+     } else{
+      init_tvm(dev);
+     }
+     LOG(INFO) << "init done.................."; 
  }
 
+ void runmodel::init_tvm(DLDevice dev){
+   tvm::runtime::Module load_lib = tvm::runtime::Module::LoadFromFile(m_json_file.at("model_single_so"));
+   tvm::runtime::Module mod = load_lib.GetFunction("default")(dev);
+   m_set_input = mod.GetFunction("set_input");
+   m_get_output = mod.GetFunction("get_output");
+   m_run = mod.GetFunction("run");
+ }
+
+void runmodel::init_tvm(int device_type, int device_id){
+   tvm::runtime::Module load_lib = tvm::runtime::Module::LoadFromFile(m_json_file.at("model_lib"));
+   std::string model_json = m_json_file.at("model_json");
+   std::ifstream json_inn(model_json);
+   if(json_inn.fail()){
+      throw std::runtime_error("could not open json file");
+   }
+   std::ifstream params_in(m_json_file.at("model_params"), std::ios::binary);
+   if(params_in.fail()){
+      throw std::runtime_error("could not open json file");
+   }
+   const std::string json_data((std::istreambuf_iterator<char>(json_inn)),
+                           std::istreambuf_iterator<char>());
+   json_inn.close();
+   const std::string params_data((std::istreambuf_iterator<char>(params_in)),
+                                    std::istreambuf_iterator<char>());
+   params_in.close();
+   TVMByteArray params_arr;
+   params_arr.data = params_data.c_str();
+   params_arr.size = params_data.length();
+   
+   tvm::runtime::Module mod = 
+      (*tvm::runtime::Registry::Get("tvm.graph_executor.create"))(json_data,
+                                                            load_lib, device_type, device_id);
+   tvm::runtime::PackedFunc load_params = mod.GetFunction("load_params");
+   load_params(params_arr);
+   m_set_input = mod.GetFunction("set_input");
+   m_get_output = mod.GetFunction("get_output");
+   m_run = mod.GetFunction("run");    
+}
+    
  json runmodel::get_json(){
     return m_json_file;
  }
@@ -76,5 +120,6 @@
 
  float* runmodel::get_output() {
      float* result = static_cast<float*>(m_output->data);
+     return result;
  }
  
