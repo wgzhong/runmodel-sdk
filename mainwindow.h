@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(std::string json_path, QWidget *parent = 0);
     ~MainWindow();
     void showImg();
     void run();

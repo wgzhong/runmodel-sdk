@@ -54,11 +54,13 @@ SOURCES       = main.cpp \
 		mainwindow.cpp \
 		camera/camera.cpp \
 		sdk/runmodel.cpp \
+		sdk/utils.cpp \
 		test/yolov5s/yolov5s.cpp moc_mainwindow.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		camera.o \
 		runmodel.o \
+		utils.o \
 		yolov5s.o \
 		moc_mainwindow.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -143,6 +145,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		macro_debug/debug.h \
 		protocol/uart.h \
 		sdk/runmodel.h \
+		sdk/utils.h \
 		test/yolov5s/test_yolov5s.h \
 		test/yolov5s/yolov5s.h \
 		time/cal_time.h \
@@ -150,6 +153,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		mainwindow.cpp \
 		camera/camera.cpp \
 		sdk/runmodel.cpp \
+		sdk/utils.cpp \
 		test/yolov5s/yolov5s.cpp
 QMAKE_TARGET  = runmodel-sdk
 DESTDIR       = 
@@ -340,8 +344,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents mainwindow.h camera/camera.h macro_debug/debug.h protocol/uart.h sdk/runmodel.h test/yolov5s/test_yolov5s.h test/yolov5s/yolov5s.h time/cal_time.h tools/tool.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp mainwindow.cpp camera/camera.cpp sdk/runmodel.cpp test/yolov5s/yolov5s.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents mainwindow.h camera/camera.h macro_debug/debug.h protocol/uart.h sdk/runmodel.h sdk/utils.h test/yolov5s/test_yolov5s.h test/yolov5s/yolov5s.h time/cal_time.h tools/tool.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp mainwindow.cpp camera/camera.cpp sdk/runmodel.cpp sdk/utils.cpp test/yolov5s/yolov5s.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.ui $(DISTDIR)/
 
 
@@ -546,8 +550,12 @@ runmodel.o: sdk/runmodel.cpp sdk/runmodel.h \
 		../tvm/include/tvm/runtime/container/string.h \
 		../tvm/include/tvm/runtime/container/base.h \
 		../tvm/include/tvm/runtime/serializer.h \
-		sdk/json.hpp
+		sdk/json.hpp \
+		../tvm/include/tvm/runtime/registry.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o runmodel.o sdk/runmodel.cpp
+
+utils.o: sdk/utils.cpp sdk/utils.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utils.o sdk/utils.cpp
 
 yolov5s.o: test/yolov5s/yolov5s.cpp test/yolov5s/yolov5s.h \
 		../tvm/include/tvm/runtime/logging.h \

@@ -11,6 +11,8 @@
 #include "tools/tool.h"
 #include "macro_debug/debug.h"
 #include <vector>
+#include "sdk/utils.h"
+ 
 class entrance{
 public:
     entrance(std::string json_path){
@@ -27,12 +29,19 @@ public:
         m_label.clear();
         m_cam = new camera(m_json_file.at("model_camera_id"), m_width, m_height);
         m_model = new yolov5s();
-        m_label = m_model->read_label(m_json_file.at("model_classes_label"));        
+        std::string label_path = m_json_file.at("model_classes_label");
+        if(!isFileExists_ifstream(label_path)){
+            throw std::runtime_error("could not open json file " + label_path);
+        }
+        m_label = m_model->read_label(label_path);        
     }
 
     int get_filenames(std::vector<cv::String> &file_names){
         std::string data_path = m_json_file.at("model_datasets");
         cv::glob(data_path + "/*.jpg", m_file_names, true);
+        if (m_file_names.size() == 0) {
+            cv::glob(data_path + "/*.png", m_file_names, true);
+        }
         file_names = m_file_names;
         return m_file_names.size();
     }

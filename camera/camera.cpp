@@ -1,6 +1,6 @@
 #include "camera.h"
 #include "macro_debug/debug.h"
-camera::camera(int video_id = 0, int defatlt_w = 480, int defatlt_h = 480)
+camera::camera(int video_id, int defatlt_w, int defatlt_h)
 {
     #if DEBUG_VIDOE
     cap.open(video_id);

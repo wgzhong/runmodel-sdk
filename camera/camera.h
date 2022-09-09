@@ -7,7 +7,7 @@
 class camera
 {
 public:
-    camera(int video_id, int defatlt_w, int defatlt_h);
+    camera(int video_id = 0, int defatlt_w = 480, int defatlt_h = 480);
     int getimage(cv::Mat &read_image);
 
 private:

@@ -4,17 +4,21 @@
 #include <QDebug>
 #include "time/cal_time.h"
 #include "macro_debug/debug.h"
-MainWindow::MainWindow(QWidget *parent) :
+
+MainWindow::MainWindow(std::string json_path, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
-{
+{   
+    if(!isFileExists_ifstream(json_path)){
+        throw std::runtime_error("could not open json file " + json_path);
+    }
     ui->setupUi(this);
     ui->view_img->setStyleSheet("QLabel {background-color: transparent;}");
     timer = new QTimer(this);
     id = 0;
     connect(timer,&QTimer::timeout,this,&MainWindow::showImg);
     timer->start(1);
-    yolov5s_entrance = new entrance("/home/wgzhong/runmodel-sdk/test/yolov5s/yolov5s.json");
+    yolov5s_entrance = new entrance(json_path);
     labels = yolov5s_entrance->get_label();
     #if DEBUG_VIDOE
     ser = new uart(8, 32);
@@ -63,9 +67,11 @@ void MainWindow::single_run(){
     std::vector<ground_truth> output = yolov5s_entrance->get_output();
     // yolov5s_entrance->print_output();
     ui->time->setText(QString::number(t1)+" ms");
-    ui->prob->setText(QString("%1").arg(output[0].class_prob));
-    ui->label_id->setText(QString::number(output[0].label_idx));
-    ui->classes->setText(QString::fromStdString(labels[output[0].label_idx]));
+    if(output.size() > 0){
+        ui->prob->setText(QString("%1").arg(output[0].class_prob));
+        ui->label_id->setText(QString::number(output[0].label_idx));
+        ui->classes->setText(QString::fromStdString(labels[output[0].label_idx]));
+    }
     id++;
     if(id == file_num){
         timer->stop();

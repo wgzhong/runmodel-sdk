@@ -8,9 +8,12 @@
     "model_lib": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.so",
     "model_params": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.params",
 
+    "camera_open": 0,
     "model_true_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
     "model_classes_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
-    "model_datasets": "/home/wgzhong/datasets/poker_new/train/images/",
+    "model_datasets": "/home/wgzhong/datasets/test/",
+
+
     "model_dtype": "kDLFloat",
     "model_input_node": "images",
     "model_bits": 32,

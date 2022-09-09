@@ -28,6 +28,7 @@ SOURCES += \
         mainwindow.cpp \
     camera/camera.cpp \
     sdk/runmodel.cpp \
+    sdk/utils.cpp \
     test/yolov5s/yolov5s.cpp
 
 HEADERS += \
@@ -36,6 +37,7 @@ HEADERS += \
     macro_debug/debug.h \
     protocol/uart.h \
     sdk/runmodel.h \
+    sdk/utils.h \
     test/yolov5s/test_yolov5s.h \
     test/yolov5s/yolov5s.h \
     time/cal_time.h \

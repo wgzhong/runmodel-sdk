@@ -36,7 +36,7 @@ public:
     yolov5s();
     void process_input(cv::Mat input_image, float *out_data, int w, int h);
     void postprocess(float *result, float class_num, float output_shape, 
-        float CONF_THRES = 0.025, float IOU_THRES = 0.6, float MAX_NUM = 3000);
+        float CONF_THRES = 0.25, float IOU_THRES = 0.6, float MAX_NUM = 3000);
     void get_output(std::vector<ground_truth> &output);
     void Mat_to_CHW(cv::Mat &input_frame, float *data, int w, int h);
     int load_input_hex(std::string path, float *data);
