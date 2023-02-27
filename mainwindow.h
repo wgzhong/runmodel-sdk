@@ -17,20 +17,20 @@ public:
     explicit MainWindow(std::string json_path, QWidget *parent = 0);
     ~MainWindow();
     void showImg();
+    void run_core();
     void run();
-    void single_run();
     QImage MatImageToQt(const cv::Mat &src);
 
 private:
     Ui::MainWindow  *ui;
-    entrance        *yolov5s_entrance;
-    uart            *ser;
-    QTimer          *timer;
-    cv::Mat         one_img;
-    int             file_num;
-    int             id;
-    std::vector<std::string> labels;
-    std::vector<cv::String> file_names;
+    entrance        *m_yolov5s_entrance;
+    uart            *m_ser;
+    QTimer          *m_timer;
+    cv::Mat         m_one_img;
+    int             m_file_num;
+    std::vector<std::string> m_labels;
+    std::vector<cv::String> m_file_names;
+    config_def_t m_json_config;
 };
 
 #endif // MAINWINDOW_H

@@ -2,25 +2,27 @@
     "model_name": "yolov5s_poker",
     "model_device": "kDLCPU",
 
-    "model_type": 1,
+    "model_type": 1, "//": "0:single only set model_single_so , 1: set json, lib, params three-part",
     "model_single_so": "/home/wgzhong/runmodel-sdk/test/yolov5s/relay_yolov5s.so",
     "model_json": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.json",
     "model_lib": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.so",
     "model_params": "/home/wgzhong/card-detection/tvm/yolov5_poker/exe/3p/yolov5s_poker_llvm.params",
 
-    "camera_open": 0,
     "model_true_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
     "model_classes_label": "/home/wgzhong/runmodel-sdk/test/yolov5s/classes.txt",
-    "model_datasets": "/home/wgzhong/datasets/test/",
+    "model_datasets": "/home/wgzhong/datasets/poker_new/train/images/",
 
+    "pic_or_video": "pic",      "//":"pic or video", 
+    "model_camera_id": 0,       "//":"camera id", 
+    "save_pic": 0,              "//":"1:save pic 0:not save", 
+    "dump": "",            "//":"input or output", 
 
     "model_dtype": "kDLFloat",
     "model_input_node": "images",
     "model_bits": 32,
     "model_input_width": 128,
-    "model_inputt_height": 128,
+    "model_input_height": 128,
     "model_input_depth": 3,
     "model_output_classes_num": 54,
-    "model_output_shape": 1008,
-    "model_camera_id": 0
+    "model_output_shape": 1008
 }

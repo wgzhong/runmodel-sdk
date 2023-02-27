@@ -142,7 +142,6 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		runmodel-sdk.pro mainwindow.h \
 		camera/camera.h \
-		macro_debug/debug.h \
 		protocol/uart.h \
 		sdk/runmodel.h \
 		sdk/utils.h \
@@ -344,7 +343,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents mainwindow.h camera/camera.h macro_debug/debug.h protocol/uart.h sdk/runmodel.h sdk/utils.h test/yolov5s/test_yolov5s.h test/yolov5s/yolov5s.h time/cal_time.h tools/tool.h $(DISTDIR)/
+	$(COPY_FILE) --parents mainwindow.h camera/camera.h protocol/uart.h sdk/runmodel.h sdk/utils.h test/yolov5s/test_yolov5s.h test/yolov5s/yolov5s.h time/cal_time.h tools/tool.h $(DISTDIR)/
 	$(COPY_FILE) --parents main.cpp mainwindow.cpp camera/camera.cpp sdk/runmodel.cpp sdk/utils.cpp test/yolov5s/yolov5s.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.ui $(DISTDIR)/
 
@@ -408,11 +407,11 @@ moc_mainwindow.cpp: test/yolov5s/test_yolov5s.h \
 		../tvm/include/tvm/runtime/container/string.h \
 		../tvm/include/tvm/runtime/container/base.h \
 		../tvm/include/tvm/runtime/serializer.h \
-		sdk/json.hpp \
 		test/yolov5s/yolov5s.h \
 		camera/camera.h \
 		tools/tool.h \
-		macro_debug/debug.h \
+		sdk/utils.h \
+		sdk/json.hpp \
 		protocol/uart.h \
 		mainwindow.h \
 		moc_predefs.h \
@@ -466,11 +465,11 @@ main.o: main.cpp mainwindow.h \
 		../tvm/include/tvm/runtime/container/string.h \
 		../tvm/include/tvm/runtime/container/base.h \
 		../tvm/include/tvm/runtime/serializer.h \
-		sdk/json.hpp \
 		test/yolov5s/yolov5s.h \
 		camera/camera.h \
 		tools/tool.h \
-		macro_debug/debug.h \
+		sdk/utils.h \
+		sdk/json.hpp \
 		protocol/uart.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
@@ -502,11 +501,11 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		../tvm/include/tvm/runtime/container/string.h \
 		../tvm/include/tvm/runtime/container/base.h \
 		../tvm/include/tvm/runtime/serializer.h \
-		sdk/json.hpp \
 		test/yolov5s/yolov5s.h \
 		camera/camera.h \
 		tools/tool.h \
-		macro_debug/debug.h \
+		sdk/utils.h \
+		sdk/json.hpp \
 		protocol/uart.h \
 		ui_mainwindow.h \
 		time/cal_time.h
@@ -520,8 +519,7 @@ camera.o: camera/camera.cpp camera/camera.h \
 		../tvm/3rdparty/dmlc-core/include/dmlc/build_config_default.h \
 		../tvm/3rdparty/dmlc-core/include/dmlc/thread_local.h \
 		../tvm/include/tvm/runtime/c_runtime_api.h \
-		../tvm/3rdparty/dlpack/include/dlpack/dlpack.h \
-		macro_debug/debug.h
+		../tvm/3rdparty/dlpack/include/dlpack/dlpack.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o camera.o camera/camera.cpp
 
 runmodel.o: sdk/runmodel.cpp sdk/runmodel.h \
@@ -550,11 +548,21 @@ runmodel.o: sdk/runmodel.cpp sdk/runmodel.h \
 		../tvm/include/tvm/runtime/container/string.h \
 		../tvm/include/tvm/runtime/container/base.h \
 		../tvm/include/tvm/runtime/serializer.h \
-		sdk/json.hpp \
-		../tvm/include/tvm/runtime/registry.h
+		../tvm/include/tvm/runtime/registry.h \
+		sdk/utils.h \
+		sdk/json.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o runmodel.o sdk/runmodel.cpp
 
-utils.o: sdk/utils.cpp sdk/utils.h
+utils.o: sdk/utils.cpp sdk/utils.h \
+		../tvm/include/tvm/runtime/logging.h \
+		../tvm/3rdparty/dmlc-core/include/dmlc/common.h \
+		../tvm/3rdparty/dmlc-core/include/dmlc/logging.h \
+		../tvm/3rdparty/dmlc-core/include/dmlc/base.h \
+		../tvm/3rdparty/dmlc-core/include/dmlc/build_config_default.h \
+		../tvm/3rdparty/dmlc-core/include/dmlc/thread_local.h \
+		../tvm/include/tvm/runtime/c_runtime_api.h \
+		../tvm/3rdparty/dlpack/include/dlpack/dlpack.h \
+		sdk/json.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utils.o sdk/utils.cpp
 
 yolov5s.o: test/yolov5s/yolov5s.cpp test/yolov5s/yolov5s.h \

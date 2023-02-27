@@ -9,69 +9,65 @@
 #include <iostream>
 #include <string>
 #include "tools/tool.h"
-#include "macro_debug/debug.h"
 #include <vector>
 #include "sdk/utils.h"
  
 class entrance{
 public:
-    entrance(std::string json_path){
-        m_runmodel = new runmodel(json_path);
-        m_json_file = m_runmodel->get_json();
-        m_depth = m_json_file.at("model_input_depth");
-        m_width = m_json_file.at("model_input_width");
-        m_height = m_json_file.at("model_inputt_height");
-        m_classes_num = m_json_file.at("model_output_classes_num");
-        m_output_shape = m_json_file.at("model_output_shape");
-        tvm::runtime::ShapeTuple input_shape = {1, m_depth, m_width, m_height};
-        tvm::runtime::ShapeTuple output_shape = {1, m_output_shape, m_classes_num+4+1};
+    entrance(config_def_t json_config){
+        m_json_config = json_config;
+        m_runmodel = new runmodel(json_config);
+        tvm::runtime::ShapeTuple input_shape = {1, m_json_config.m_model_input_depth, m_json_config.m_model_input_width, m_json_config.m_model_input_height};
+        tvm::runtime::ShapeTuple output_shape = {1, m_json_config.m_model_output_shape, m_json_config.m_model_output_classes_num+4+1};
         m_runmodel->init(input_shape, output_shape);
         m_label.clear();
-        m_cam = new camera(m_json_file.at("model_camera_id"), m_width, m_height);
+        if(m_json_config.m_pic_or_video == "video"){
+            m_cam = new camera(json_config.m_model_camera_id, m_json_config.m_model_input_width, m_json_config.m_model_input_height);
+        }    
         m_model = new yolov5s();
-        std::string label_path = m_json_file.at("model_classes_label");
-        if(!isFileExists_ifstream(label_path)){
-            throw std::runtime_error("could not open json file " + label_path);
+        if(!isFileExists_ifstream(m_json_config.m_model_classes_label)){
+            throw std::runtime_error("could not open json file " + m_json_config.m_model_classes_label);
         }
-        m_label = m_model->read_label(label_path);        
+        m_label = m_model->read_label(m_json_config.m_model_classes_label);        
     }
 
     int get_filenames(std::vector<cv::String> &file_names){
-        std::string data_path = m_json_file.at("model_datasets");
-        cv::glob(data_path + "/*.jpg", m_file_names, true);
+        cv::glob(m_json_config.m_model_datasets + "/*.jpg", m_file_names, true);
         if (m_file_names.size() == 0) {
-            cv::glob(data_path + "/*.png", m_file_names, true);
+            cv::glob(m_json_config.m_model_datasets + "/*.png", m_file_names, true);
         }
         file_names = m_file_names;
         return m_file_names.size();
     }
     cv::Mat run_cam(std::string file_path=""){
-        #if DEBUG_PIC
-        m_input_image=cv::imread(file_path);//test
-        #elif DEBUG_VIDOE
-        m_cam->getimage(m_input_image);
-        #endif
+        if(m_json_config.m_pic_or_video == "pic"){
+            m_input_image=cv::imread(file_path);//test
+        } else if(m_json_config.m_pic_or_video == "video"){
+            m_cam->getimage(m_input_image);
+        } else{
+            LOG(ERROR)<<"not support other format!\n";
+        }
         assert(!m_input_image.empty());
         return m_input_image;
     }
 
     void set_input(){
-        float *out_data = new float[m_width * m_height * m_depth];
-        m_model->process_input(m_input_image, out_data, m_width, m_height);
+        float *out_data = new float[m_json_config.m_model_input_width * m_json_config.m_model_input_height * m_json_config.m_model_input_depth];
+        m_model->process_input(m_input_image, out_data, m_json_config.m_model_input_width, m_json_config.m_model_input_height);
         // load_input_hex("/home/wgzhong/card-detection/tvm/yolov5_poker/python/cam_image.bin", out_data);
-        #if DEBUG_DUMP_INPUT
-        dump_data<float>(out_data, "./input_cpp.bin", m_width * m_height * m_depth*4);//float
-        #endif
-        m_runmodel->set_input(out_data, m_depth * m_width * m_height * 2);
+        if(m_json_config.m_dump == "input"){
+            dump_data<float>(out_data, "./input_cpp.bin", m_json_config.m_model_input_width * m_json_config.m_model_input_height * m_json_config.m_model_input_depth*4);//float
+        }
+        m_runmodel->set_input(out_data, m_json_config.m_model_input_width * m_json_config.m_model_input_height * m_json_config.m_model_input_depth * 2);
     }
 
     void run(){
-        m_runmodel->run(m_json_file.at("model_input_node"));
+        m_runmodel->run();
     }
 
     std::vector<ground_truth> get_output(){
         float *output = m_runmodel->get_output();
-        m_model->postprocess(output, m_classes_num, m_output_shape);
+        m_model->postprocess(output, m_json_config.m_model_output_classes_num, m_json_config.m_model_output_shape);
         m_output.clear();
         m_model->get_output(m_output);
         return m_output;
@@ -96,11 +92,6 @@ private:
     camera *m_cam;
     yolov5s *m_model;
     runmodel *m_runmodel;
-    json m_json_file;
     std::vector<cv::String> m_file_names;
-    int m_height;
-    int m_width;
-    int m_depth;
-    int m_classes_num;
-    int m_output_shape;
+    config_def_t m_json_config;
 };

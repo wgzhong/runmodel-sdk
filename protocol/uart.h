@@ -110,10 +110,17 @@ public:
         }
         if(send_buf.size()>0){
             for(int i=0; i<topk+1; i++){
-                memcpy(data, &send_buf[i], sizeof(send_buf[i]));
-                memcpy(send_data+4, data, send_size-4-4);
+                if(send_buf[i].class_prob > 0.3){
+                   memcpy(data, &send_buf[i], sizeof(send_buf[i]));
+                } else{
+                   memset(data, 0xFF, 4);
+                }
+                memcpy(send_data+4, data, send_size-4-4); 
                 write(fd, send_data, send_size);
                 std::string cls = labels[send_buf[i].label_idx]+"\n";
+                if(send_buf[i].class_prob <= 0.3){
+                    cls = "not card or card position error!!!\n";
+                }
                 write(fd, cls.c_str(), cls.size());
             }
         }

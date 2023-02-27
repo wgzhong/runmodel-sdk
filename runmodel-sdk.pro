@@ -34,7 +34,6 @@ SOURCES += \
 HEADERS += \
         mainwindow.h \
     camera/camera.h \
-    macro_debug/debug.h \
     protocol/uart.h \
     sdk/runmodel.h \
     sdk/utils.h \
