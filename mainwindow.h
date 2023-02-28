@@ -19,6 +19,7 @@ public:
     void showImg();
     void run_core();
     void run();
+    void save_pic();
     QImage MatImageToQt(const cv::Mat &src);
 
 private:

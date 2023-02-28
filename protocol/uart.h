@@ -16,6 +16,9 @@
 
 #define FALSE  0    
 #define TRUE   1
+#define ERROR_MSG   0xEE
+#define INVALID_MSG 0xFF
+#define SAVE_PIC    0x23
 
 class uart{
 public:
@@ -23,6 +26,7 @@ public:
         recv_size = rcv;
         send_size = send;
         recv_flag = FALSE;
+        is_save_pic = FALSE;
         recv_data = new char[recv_size];
         memset(recv_data, 0, recv_size);    
     };
@@ -85,7 +89,7 @@ public:
 		}
         if(len != recv_size){
             char error_msg[recv_size];
-            memset(error_msg, 0xff, recv_size);
+            memset(error_msg, INVALID_MSG, recv_size);
             write(fd, error_msg, recv_size);
             memset(recv_data, 0, recv_size); 
             LOG(ERROR)<<"recv data not equal size recv_size!=len"<<recv_size <<"!= "<<len;
@@ -113,7 +117,7 @@ public:
                 if(send_buf[i].class_prob > 0.3){
                    memcpy(data, &send_buf[i], sizeof(send_buf[i]));
                 } else{
-                   memset(data, 0xFF, 4);
+                   memset(data, INVALID_MSG, 4);
                 }
                 memcpy(send_data+4, data, send_size-4-4); 
                 write(fd, send_data, send_size);
@@ -125,22 +129,44 @@ public:
             }
         }
     }
+
+    bool isSavePic(){
+        return is_save_pic;
+    }
+
+    void setSavePic(int value){
+        is_save_pic = value;
+    }
+
+    bool dataVerification(){
+        for(int i = 0; i<4; i++){
+            if(recv_data[i] != head[i]){
+                clearData();
+                char error_msg[recv_size];
+                memset(error_msg, ERROR_MSG, recv_size);
+                write(fd, error_msg, recv_size);
+                return FALSE;
+            }
+        }
+        for(int i = recv_size-4; i<recv_size-1; i++){
+            if(recv_data[i] != tail[i]){
+                char error_msg[recv_size];
+                memset(error_msg, ERROR_MSG, recv_size);
+                write(fd, error_msg, recv_size);
+                clearData();
+                return FALSE;
+            }
+        }
+        return TRUE;
+    }
+
     bool isCorrect(){
         if(recv_flag){
-            for(int i=0;i<recv_size;i++){
-                if(i<4 && recv_data[i] != head[i]){
-                    clearData();
-                    char error_msg[recv_size];
-                    memset(error_msg, 0xee, recv_size);
-                    write(fd, error_msg, recv_size);
-                    return FALSE;
-                } else if(i>3 && recv_data[i] != tail[i-4]){
-                    char error_msg[recv_size];
-                    memset(error_msg, 0xee, recv_size);
-                    write(fd, error_msg, recv_size);
-                    clearData();
-                    return FALSE;
-                }
+            if(dataVerification() == FALSE){
+                return FALSE;
+            }
+            if(recv_data[4]==SAVE_PIC){
+                is_save_pic = TRUE;
             }
             clearData();
             return TRUE;
@@ -160,6 +186,7 @@ private:
     int send_size;
     char *recv_data;
     bool recv_flag;
+    bool is_save_pic;
     char head[4] = {0x21, 0x09, 0x01, 0x01};
     char tail[4] = {0x21, 0x09, 0x30, 0x01};
 };

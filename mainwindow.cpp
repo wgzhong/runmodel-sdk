@@ -26,7 +26,7 @@ MainWindow::MainWindow(std::string json_path, QWidget *parent) :
             LOG(ERROR)<<"images array size is None";
         }
     } else if(m_json_config.m_pic_or_video == "video"){
-        m_ser = new uart(8, 32);
+        m_ser = new uart(16, 32);
         bool flag = m_ser->uartInit((char*)"/dev/ttyAMA0", 115200);
         assert(flag);
         LOG(INFO)<<"init ok";
@@ -72,13 +72,24 @@ void MainWindow::run(){
         LOG(ERROR)<<"mainwindow not support other format!\n";
     }
 }
+
+void MainWindow::save_pic(){
+    char name[128];
+    get_local_time(name);
+    strcat(name, ".jpg");
+    cv::imwrite(name, m_one_img);
+}
+
 void MainWindow::run_core(){
     long start_time = getTimeUsec();
     if(m_json_config.m_save_pic == 1){
-        char name[128];
-        get_local_time(name);
-        strcat(name, ".jpg");
-        cv::imwrite(name, m_one_img);
+        save_pic();
+    }
+    if(m_json_config.m_pic_or_video == "video" && m_ser->isSavePic()){
+        if(m_ser->isSavePic()){
+            m_ser->setSavePic(0);
+            save_pic();
+        }
     }
     m_yolov5s_entrance->set_input();
     m_yolov5s_entrance->run();
